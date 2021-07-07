@@ -19,7 +19,7 @@ library(here)
 library(dplyr)
 library(flextable)
 library(openxlsx)
-library(readxl)
+#library(readxl)
 
 input <- "src/"
 output <- "gen/"
@@ -36,7 +36,8 @@ sufficient <- 5.5
 
 # inlezen Excel met rubrics
 filexl <- "portfolio_preken.xlsx"
-sheets <- readxl::excel_sheets(path = here(filexl))[-1] # weglaten tabblad instellingen
+#sheets <- readxl::excel_sheets(path = here(filexl))[-1] # weglaten tabblad instellingen
+sheets <- openxlsx::getSheetNames(file = here(filexl))[-1] # weglaten tabblad instellingen
 
 # functies voor maken van rubrieken en formulieren
 source(here("src","function_rubrics.R"))
@@ -47,7 +48,8 @@ source(here("src", "function_assessment.R"))
 
 ```{r meta-data portfolio onderdelen, include=FALSE}
 
-instellingen <- readxl::read_xlsx(path = here::here(filexl), sheet = "instellingen")
+#instellingen <- readxl::read_xlsx(path = here::here(filexl), sheet = "instellingen")
+instellingen <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = "instellingen"))
 instellingen <- instellingen[-5] # correctie op input-file. Verwijder deze regel voor portfolio-voorbeeld.xlsx
 portfolio_title <-  "Themaveld sPreken"
 
@@ -92,7 +94,8 @@ padimages <- paste0(here::here(), "/gen")
 
 for (i in seq_along(sheets)){
   naam <- sheets[i]
-  gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
+  #gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
+  gevuld <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = naam))
   
   groups <- cut(1:nrow(gevuld), # deel de tabel in groepen in volgens metadata$parts
                   breaks = c(metadata_portfolio$parts[[i]],nrow(gevuld)), 
@@ -117,9 +120,6 @@ for (i in seq_along(sheets)){
 
 
 ```{r Print portfolio-onderdelen, echo=FALSE, results='asis'}
-
-#sheets <- readxl::excel_sheets(path = here(filexl))
-#gevuld <- readxl::read_xlsx(path = here(filexl), sheet = sheets[sheetnr])
 
 padimages <- paste0(here::here(), "/gen")
 
