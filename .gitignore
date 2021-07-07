@@ -5,7 +5,7 @@
 src/obsolete/
 gen/obsolete/
 doc/
-*.xlsx
+portfolio_preken.xlsx
 *.pdf
 *.png
 *.html

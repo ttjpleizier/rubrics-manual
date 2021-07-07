@@ -34,14 +34,13 @@ punten <- c(0,1,2,3) # toekennen punten per niveau
 cutoff <- 0.55 #percentage 
 sufficient <- 5.5
 
+# inlezen Excel met rubrics
+filexl <- "portfolio_preken.xlsx"
+sheets <- readxl::excel_sheets(path = here(filexl))[-1] # weglaten tabblad instellingen
 
+# functies voor maken van rubrieken en formulieren
 source(here("src","function_rubrics.R"))
 source(here("src", "function_assessment.R"))
-
-
-# inlezen Excel met rubrics
-filexl <- "portfolio_matrices_ingevuld.xlsx"
-sheets <- readxl::excel_sheets(path = here(filexl))[-1] #minus instellingen
 
 
 ```
@@ -49,7 +48,7 @@ sheets <- readxl::excel_sheets(path = here(filexl))[-1] #minus instellingen
 ```{r meta-data portfolio onderdelen, include=FALSE}
 
 instellingen <- readxl::read_xlsx(path = here::here(filexl), sheet = "instellingen")
-instellingen <- instellingen[-5]
+instellingen <- instellingen[-5] # correctie op input-file. Verwijder deze regel voor portfolio-voorbeeld.xlsx
 portfolio_title <-  "Themaveld sPreken"
 
 titles <- as.vector(as.matrix(instellingen[1,-1]))
