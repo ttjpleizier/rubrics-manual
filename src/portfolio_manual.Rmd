@@ -21,7 +21,6 @@ library(flextable)
 library(openxlsx)
 library(readxl)
 
-filepad <- "cursus\ Themaveld\ Preken/toetsing/R-build-matrices/"
 input <- "src/"
 output <- "gen/"
 
@@ -152,28 +151,4 @@ for (i in seq_along(sheets)){
   cat('\\newpage')
 }
 ```
-
-<!--
-# Test beoordelingsformulier 
-
-```{r eval=FALSE, include=FALSE, results='asis'}
-source("function_assessment.R")
-padimages <- paste0(here::here(), "/gen")
-
-for (i in seq_along(sheets)){
-  naam <- sheets[i]
-  gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
-  
-  t <- assessment(gevuld)
-  flextable::save_as_image(t, path = paste0(padimages,"/form_",naam,".png"))
-  
-  cat('\n\n### Beoordelingsformulier \n\n')
-  imagefilef <- paste0(padimages,"/form_",naam,".png")
-  cat('\n')
-  cat('![](',imagefilef,')')
-  cat('\n')
-  cat('\\newpage')
-}
-```
--->
 
