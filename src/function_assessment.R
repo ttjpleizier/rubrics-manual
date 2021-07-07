@@ -4,7 +4,9 @@ assessment <- function(ingevuld,
                        cutoff = 0.55,
                        points = c(0,1,2,3),
                        sufficient = 5.5,
-                       nivs = c("--","-","+", "++")){
+                       nivs = c("--","-","+", "++"),
+                       ilo.long = FALSE,
+                       file = "assessment.png"){
   
   niveaus <- c(paste0("niv",rep(1:4)))
   names(ingevuld)[4:7] <- niveaus
@@ -24,23 +26,32 @@ assessment <- function(ingevuld,
   score_tabel <- data.frame(score_v, cijfer_v) %>% arrange(desc(score_v)) %>% bind_cols(score_tabel)
   st <- as.data.frame(t(score_tabel))
   
-  st_t <- st %>% 
-    tibble::rownames_to_column("score") %>%  
-    mutate(score = c("Score voldoende", "Cijfer", "Score onvoldoende", "Cijfer")) %>% 
+  new_st <- check_length_scoretabel(st)
+  oneven_rij <- seq(1,nrow(new_st), by = 2)
+  
+  st_t <- new_st %>% 
+    mutate(score = case_when(
+      score == "score_v" ~ "Score voldoende",
+      score == "score_o" ~ "Score onvoldoende",
+      score == "cijfer_v" ~ "Cijfer",
+      score == "cijfer_o" ~ "Cijfer")) %>% #            c("Score voldoende", "Cijfer", "Score onvoldoende", "Cijfer")) %>% 
     flextable() %>% 
     delete_part(part = "header") %>% 
     hline_top(part = "body") %>% 
     hline_bottom(part = "body") %>% 
-    hline(i=2,j=1:nrow(score_tabel)+1) %>% 
-    colformat_double(i=1,j=1:nrow(score_tabel), digits=0) %>%
-  colformat_double(i=3,j=1:nrow(score_tabel), digits=0) %>% 
-  fit_to_width(max_width = 8)
-  
-  st_t
+    hline(i=voldoende_rij,j=1:ncol(new_st)) %>%
+    #colformat_double(i=1,j=1:nrow(score_tabel), digits=0) %>%
+    #colformat_double(i=3,j=1:nrow(score_tabel), digits=0) %>% 
+    #colformat_double(i=1,j=1:ncol(new_st), digits=0) %>%
+    #colformat_double(i=3,j=1:ncol(new_st), digits=0) %>% 
+    colformat_double(i=oneven_rij,j=1:ncol(new_st), digits=0) %>%
+    fontsize(size = 9, part = "body") #%>% 
+    #fit_to_width(max_width = 8)
   
   st_t_ratio <- flextable_dim(st_t)$aspect_ratio
+
+  save_as_image(st_t, path = paste0(file,"_scoretable.png"))
   
-  save_as_image(st_t, path = here("score-cijfer.png"))
   
   # beoordelingsformulier per student
   
@@ -89,17 +100,45 @@ assessment <- function(ingevuld,
     width(j=8, width = 2.3) %>% 
     align(j=4:7, align = "center")
   
+  longilo <- if_else(ilo.long,ncol(ingevuld)+1,3)
   for (ilo in 1:length(rownrs)){
-    form_t <- merge_at(form_t, i=rownrs[ilo], j=1:3, part = "body")
+    form_t <- merge_at(form_t, i=rownrs[ilo], j=1:longilo, part = "body")
   }
 
-  # toevoegen afbeelding met score-cijfer in footer 
-  form_t <- form_t %>% 
-    add_footer(ilo_nr = "test") %>% 
-    merge_at(j=1:8, part = "footer") %>% 
-    compose(part = "footer", 
-            i = 1, j = 1, 
-            value = as_paragraph(as_image(src = here("score-cijfer.png"), 
-                                          width = 8,
-                                          height = 8*st_t_ratio)))
+  return(form_t)
+}
+
+check_length_scoretabel <- function(st){
+  new_st <- st %>% tibble::rownames_to_column("score")
+  l <- length(names(st))
+  voldoende_rij <<- 2
+  if (l >= 24){
+    max <- 20
+    a <- split(names(st)[1:l],ceiling(seq_along(names(st))/max)) # lijsten met kolomnamen
+    voldoende_rij <<- 0
+    rijnamen <- rownames(st)
+    new_st <- data.frame(matrix(nrow=0, ncol=max+1))
+    names(new_st)[1] <- "score"
+    names(new_st)[2:(max+1)] <- letters[1:max]
+    voldoende_rij <<- 0
+    for (j in c(2,4)){#2=voldoende/4=onvoldoende
+      rij1 <- j-1
+      rij2 <- j
+      for (i in seq_along(a)){
+        s <- a[[i]]
+        #scores
+        nrij <- as.data.frame(c(rijnamen[rij1],st[rij1,s]))
+        names(nrij) <- names(new_st)[1:length(nrij)]
+        if (!is.na(nrij$a)){
+          new_st <- rbind.fill(new_st, nrij)
+          if(j==2){voldoende_rij <<- voldoende_rij + 2}
+          } 
+        #cijfers
+        nrij <- as.data.frame(c(rijnamen[rij2],st[rij2,s]))
+        names(nrij) <- names(new_st)[1:length(nrij)]
+        if (!is.na(nrij$a)){new_st <- rbind.fill(new_st, nrij)} 
+      }
+    }
+  }
+  return(new_st)
 }

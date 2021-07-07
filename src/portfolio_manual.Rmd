@@ -16,14 +16,14 @@ knit: (function(inputFile, encoding) {rmarkdown::render(inputFile, output_format
 ---
 
 ```{r initialise, message=FALSE, warning=FALSE, include=FALSE}
+library(plyr)
 library(here)
 library(dplyr)
 library(flextable)
 library(openxlsx)
-#library(readxl)
+library(magick)
 
 input <- "src/"
-#output <- "gen/"
 
 ## instellingen rubrics
 niveaus <- c(paste0("niv",rep(1:4)))
@@ -36,8 +36,7 @@ sufficient <- 5.5
 
 # inlezen Excel met rubrics
 filexl <- "portfolio_preken.xlsx"
-#sheets <- readxl::excel_sheets(path = here(filexl))[-1] # weglaten tabblad instellingen
-sheets <- openxlsx::getSheetNames(file = here(filexl))[-1] # weglaten tabblad instellingen
+sheets <- openxlsx::getSheetNames(file = here::here(filexl))[-1] # weglaten tabblad instellingen
 
 # functies voor maken van rubrieken en formulieren
 source(here("src","function_rubrics.R"))
@@ -48,7 +47,6 @@ source(here("src", "function_assessment.R"))
 
 ```{r meta-data portfolio onderdelen, include=FALSE}
 
-#instellingen <- readxl::read_xlsx(path = here::here(filexl), sheet = "instellingen")
 instellingen <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = "instellingen"))
 instellingen <- instellingen[-5] # correctie op input-file. Verwijder deze regel voor portfolio-voorbeeld.xlsx
 portfolio_title <-  "Themaveld sPreken"
@@ -94,7 +92,7 @@ padimages <- paste0(here::here(), "/gen")
 
 for (i in seq_along(sheets)){
   naam <- sheets[i]
-  #gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
+  fileimages <- paste0(padimages,"/",naam)
   gevuld <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = naam))
   
   groups <- cut(1:nrow(gevuld), # deel de tabel in groepen in volgens metadata$parts
@@ -109,14 +107,22 @@ for (i in seq_along(sheets)){
                  title = if_else(k > 1, 
                                  paste0(metadata_portfolio$title[i], " (vervolg)"),
                                  metadata_portfolio$title[i]))
-    flextable::save_as_image(t, path = paste0(padimages,"/rubrics_",naam,"_",k,".png"))
+    flextable::save_as_image(t, path = paste0(fileimages,"_rubrics_",k,".png"))
   }
   f <- assessment(gevuld,
                   nivs = Niveaus,
-                  cutoff = as.numeric(metadata_portfolio$perc_voldoende[i])/100)
-  flextable::save_as_image(f, path = paste0(padimages,"/form_",naam,".png"))
+                  cutoff = as.numeric(metadata_portfolio$perc_voldoende[i])/100,
+                  file = fileimages,
+                  ilo.long = TRUE)
+  flextable::save_as_image(f, path = paste0(fileimages,"_form.png"))
+  
+  # combineer formulier met scoretable, gebruik library magick
+  imagef <- image_read(paste0(fileimages,"_form.png"))
+  imagest <- image_read(paste0(fileimages,"_scoretable.png"))
+  imagec <- c(imagef,imagest)
+  imagec <- image_append(image_scale(imagec, "750"), stack = TRUE)
+  image_write(imagec, path = paste0(fileimages,"_combined.png"), format = "png")
 }
-
 
 ```
 
@@ -127,7 +133,7 @@ padimages <- paste0(here::here(), "/gen")
 
 for (i in seq_along(sheets)){
   naam <- sheets[i]
-  #cat('\n\n## Onderdeel:', metadata_portfolio$title[i], '\n\n')
+  fileimages <- paste0(padimages,"/",naam)
   
   cat('\n\n## ', metadata_portfolio$title[i], '\n\n')
   
@@ -136,7 +142,7 @@ for (i in seq_along(sheets)){
   
   cat('\n\n### Beoordelingsmatrix \n\n')
   for(k in seq_along(metadata_portfolio$parts[[i]])){
-    imagefilem <- paste0(padimages,"/rubrics_",naam,"_",k,".png")
+    imagefilem <- paste0(fileimages,"_rubrics_",k,".png")
     cat('\n')
     cat('![](',imagefilem,')')
     cat('\n')
@@ -145,7 +151,7 @@ for (i in seq_along(sheets)){
   cat('\\newpage')
   
   cat('\n\n### Beoordelingsformulier \n\n')
-  imagefilef <- paste0(padimages,"/form_",naam,".png")
+  imagefilef <- paste0(fileimages,"_combined.png")
   cat('\n')
   cat('![](',imagefilef,')')
   cat('\n')

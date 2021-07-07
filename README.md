@@ -2,7 +2,7 @@
 
 Maak een handleiding met portfolio opdrachten, rubrieken en beoordelingsformulieren.
 
-0. Installeer R, met packages: here, dplyr, flextable, ~~readxl~~, openxlsx
+0. Installeer R, met packages: here, plyr, dplyr, flextable, ~~readxl~~, openxlsx, magick
 1. Clone dit repository
 2. Maak .xlx file met ingevulde Matrix volgens format: portfolio_voorbeeld.xlsx
 3. Pas titel en wellicht naam van het .xlx bestand aan in de file /src/portfolio_manual.Rmd
