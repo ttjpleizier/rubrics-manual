@@ -1,0 +1,1 @@
+In deze map worden afbeeldingsbestanden geplaatst die door het .Rmd worden gemaakt.

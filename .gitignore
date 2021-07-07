@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+src/obsolete/
+gen/obsolete/
+doc/
+*.xlsx
+*.pdf
+*.png

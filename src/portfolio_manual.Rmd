@@ -1,0 +1,179 @@
+---
+title: "Themaveld sPreken"
+author: "Toetsing en beoordeling"
+date: "Juli 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+  html_notebook: default
+header-includes: |
+  \usepackage{graphicx}
+  \usepackage[utf8]{inputenc}
+  \usepackage{MinionPro}
+---
+
+```{r initialise, message=FALSE, warning=FALSE, include=FALSE}
+library(here)
+library(dplyr)
+library(flextable)
+library(openxlsx)
+library(readxl)
+
+filepad <- "cursus\ Themaveld\ Preken/toetsing/R-build-matrices/"
+input <- "src/"
+output <- "gen/"
+
+## instellingen rubrics
+niveaus <- c(paste0("niv",rep(1:4)))
+Niveaus <- c("onvoldoende", "zwak", "gemiddeld", "sterk")
+skip_lowest_niv <- FALSE #skip.lowest in rubrics
+
+## instellingen score-tabel 
+punten <- c(0,1,2,3) # toekennen punten per niveau
+cutoff <- 0.55 #percentage 
+sufficient <- 5.5
+
+
+source(here("src","function_rubrics.R"))
+source(here("src", "function_assessment.R"))
+
+
+# inlezen Excel met rubrics
+filexl <- "portfolio_matrices_ingevuld.xlsx"
+sheets <- readxl::excel_sheets(path = here(filexl))[-1] #minus instellingen
+
+
+```
+
+```{r meta-data portfolio onderdelen, include=FALSE}
+
+instellingen <- readxl::read_xlsx(path = here::here(filexl), sheet = "instellingen")
+instellingen <- instellingen[-5]
+portfolio_title <-  "Themaveld sPreken"
+
+titles <- as.vector(as.matrix(instellingen[1,-1]))
+descriptions <- as.vector(as.matrix(instellingen[2,-1]))
+percentages_voldoende <-as.vector(as.matrix(instellingen[3,-1]))
+
+parts <- vector("list", length(sheets))
+parts <- rep(list(c(1)),length(parts))
+
+# definieer per onderdeel waar nieuwe sub-tabel moet beginnen met rij-nummer;
+# meestal de ilo, maar niet altijd; afhankelijk van lengte van de tabel 
+
+if(skip_lowest_niv){ #skip.lowest = FALSE
+  parts[1] <- list(c(1,12)) 
+  } else {
+  parts[1] <- list(c(1,9)) 
+}
+
+
+# definieer aparte titels voor de portfolio-onderdelen
+# standaard: dezelfde namen als sheet-namen in het exceldocument
+
+metadata_portfolio <- data.frame(naam = sheets,
+                                 nr = 1:length(sheets),
+                                 parts = matrix(parts),
+                                 title = titles,
+                                 beschrijvingen = descriptions,
+                                 perc_voldoende = percentages_voldoende)
+
+
+
+```
+
+
+# Portfolio onderdelen
+
+```{r Verzamel portfolio-onderdelen, include=FALSE}
+# afbeeldingsbestanden maken van rubrics en assessment-formulieren
+
+padimages <- paste0(here::here(), "/gen")
+
+for (i in seq_along(sheets)){
+  naam <- sheets[i]
+  gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
+  
+  groups <- cut(1:nrow(gevuld), # deel de tabel in groepen in volgens metadata$parts
+                  breaks = c(metadata_portfolio$parts[[i]],nrow(gevuld)), 
+                  include.lowest = TRUE, right = FALSE)
+  groups <- as.numeric(groups)
+    
+  for(k in seq_along(unique(groups))){ 
+    t <- rubrics(gevuld[groups == k,],
+                 ilo.long = TRUE,
+                 skip.lowest = skip_lowest_niv,
+                 title = if_else(k > 1, 
+                                 paste0(metadata_portfolio$title[i], " (vervolg)"),
+                                 metadata_portfolio$title[i]))
+    flextable::save_as_image(t, path = paste0(padimages,"/rubrics_",naam,"_",k,".png"))
+  }
+  f <- assessment(gevuld)
+  flextable::save_as_image(f, path = paste0(padimages,"/form_",naam,".png"))
+}
+
+
+```
+
+
+```{r Print portfolio-onderdelen, echo=FALSE, results='asis'}
+
+#sheets <- readxl::excel_sheets(path = here(filexl))
+#gevuld <- readxl::read_xlsx(path = here(filexl), sheet = sheets[sheetnr])
+
+padimages <- paste0(here::here(), "/gen")
+
+for (i in seq_along(sheets)){
+  naam <- sheets[i]
+  #cat('\n\n## Onderdeel:', metadata_portfolio$title[i], '\n\n')
+  
+  cat('\n\n## ', metadata_portfolio$title[i], '\n\n')
+  
+  cat('\n\n### Opdracht \n\n')
+  cat(metadata_portfolio$beschrijvingen[i])
+  
+  cat('\n\n### Beoordelingsmatrix \n\n')
+  for(k in seq_along(metadata_portfolio$parts[[i]])){
+    imagefilem <- paste0(padimages,"/rubrics_",naam,"_",k,".png")
+    cat('\n')
+    cat('![](',imagefilem,')')
+    cat('\n')
+  }
+  cat('\n')
+  cat('\\newpage')
+  
+  cat('\n\n### Beoordelingsformulier \n\n')
+  imagefilef <- paste0(padimages,"/form_",naam,".png")
+  cat('\n')
+  cat('![](',imagefilef,')')
+  cat('\n')
+  cat('\\newpage')
+}
+```
+
+<!--
+# Test beoordelingsformulier 
+
+```{r eval=FALSE, include=FALSE, results='asis'}
+source("function_assessment.R")
+padimages <- paste0(here::here(), "/gen")
+
+for (i in seq_along(sheets)){
+  naam <- sheets[i]
+  gevuld <- readxl::read_xlsx(path = here::here(filexl), sheet = naam)
+  
+  t <- assessment(gevuld)
+  flextable::save_as_image(t, path = paste0(padimages,"/form_",naam,".png"))
+  
+  cat('\n\n### Beoordelingsformulier \n\n')
+  imagefilef <- paste0(padimages,"/form_",naam,".png")
+  cat('\n')
+  cat('![](',imagefilef,')')
+  cat('\n')
+  cat('\\newpage')
+}
+```
+-->
+
