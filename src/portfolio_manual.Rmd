@@ -12,6 +12,7 @@ header-includes: |
   \usepackage{graphicx}
   \usepackage[utf8]{inputenc}
   \usepackage{MinionPro}
+knit: (function(inputFile, encoding) {rmarkdown::render(inputFile, output_format = "pdf_document", encoding = encoding, output_dir = "../gen/") })
 ---
 
 ```{r initialise, message=FALSE, warning=FALSE, include=FALSE}
@@ -22,7 +23,7 @@ library(openxlsx)
 #library(readxl)
 
 input <- "src/"
-output <- "gen/"
+#output <- "gen/"
 
 ## instellingen rubrics
 niveaus <- c(paste0("niv",rep(1:4)))
@@ -111,6 +112,7 @@ for (i in seq_along(sheets)){
     flextable::save_as_image(t, path = paste0(padimages,"/rubrics_",naam,"_",k,".png"))
   }
   f <- assessment(gevuld,
+                  nivs = Niveaus,
                   cutoff = as.numeric(metadata_portfolio$perc_voldoende[i])/100)
   flextable::save_as_image(f, path = paste0(padimages,"/form_",naam,".png"))
 }

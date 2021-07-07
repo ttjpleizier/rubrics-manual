@@ -4,7 +4,7 @@ assessment <- function(ingevuld,
                        cutoff = 0.55,
                        points = c(0,1,2,3),
                        sufficient = 5.5,
-                       nivs = Niveaus){
+                       nivs = c("--","-","+", "++")){
   
   niveaus <- c(paste0("niv",rep(1:4)))
   names(ingevuld)[4:7] <- niveaus
@@ -40,7 +40,7 @@ assessment <- function(ingevuld,
   
   st_t_ratio <- flextable_dim(st_t)$aspect_ratio
   
-  save_as_image(st_t, path = here(output,"score-cijfer.png"))
+  save_as_image(st_t, path = here("score-cijfer.png"))
   
   # beoordelingsformulier per student
   
@@ -99,7 +99,7 @@ assessment <- function(ingevuld,
     merge_at(j=1:8, part = "footer") %>% 
     compose(part = "footer", 
             i = 1, j = 1, 
-            value = as_paragraph(as_image(src = here(output,"score-cijfer.png"), 
+            value = as_paragraph(as_image(src = here("score-cijfer.png"), 
                                           width = 8,
                                           height = 8*st_t_ratio)))
 }
