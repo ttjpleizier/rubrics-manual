@@ -23,10 +23,3 @@ Maak een handleiding met portfolio opdrachten, rubrieken en beoordelingsformulie
 ## Done
 210607 vervang gebruikte functies van packages `readxl` voor die van  `openxlsx`
 
-## Bugs
-Bij mijn eigen versie zit er nog een fout in de input.xlsx. Daarom is in portfolio_manual.Rmd een extra regel toegevoegd: 
-
-`instellingen <- instellingen[-5] # correctie op input-file. Verwijder deze regel voor portfolio-voorbeeld.xlsx`
-
-Die regel geeft een foutmelding bij het gebruiken van de voorbeeld.xlsx. Verwijder de regel in je lokale installatie. 
-
