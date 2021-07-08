@@ -6,6 +6,7 @@ src/obsolete/
 gen/obsolete/
 doc/
 portfolio_preken.xlsx
+portfolio_manual_preken.Rmd
 *.pdf
 *.png
 *.html
