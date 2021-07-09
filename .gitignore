@@ -3,10 +3,13 @@
 .RData
 .Ruserdata
 src/obsolete/
+src/ignore/
 gen/obsolete/
 doc/
 portfolio_preken.xlsx
 portfolio_manual_preken.Rmd
+programma_training.csv
 *.pdf
 *.png
 *.html
+*.docx

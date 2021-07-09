@@ -4,7 +4,8 @@
 # 1 inlezen van .csv met cursusdoelen, indicatoren per cursusdoel en per (portfolio) onderdeel
 # 2 samenstellen van lege beoordelingsmatrixen in Excel met tabbladen per (portfolio) onderdeel
 
-# ouput: porfolio-TITEL.xlsx, te gebruiken in portfolio-manual.Rmd voor het genereren van een complete handleiding met rubrieken en beoordelignsformulieren
+# ouput: porfolio-TITEL.xlsx, 
+# te gebruiken in portfolio-manual.Rmd voor het genereren van een complete handleiding met rubrieken en beoordelignsformulieren
 
 
 # libraries en setings

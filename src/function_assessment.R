@@ -34,19 +34,14 @@ assessment <- function(ingevuld,
       score == "score_v" ~ "Score voldoende",
       score == "score_o" ~ "Score onvoldoende",
       score == "cijfer_v" ~ "Cijfer",
-      score == "cijfer_o" ~ "Cijfer")) %>% #            c("Score voldoende", "Cijfer", "Score onvoldoende", "Cijfer")) %>% 
+      score == "cijfer_o" ~ "Cijfer")) %>% 
     flextable() %>% 
     delete_part(part = "header") %>% 
     hline_top(part = "body") %>% 
     hline_bottom(part = "body") %>% 
     hline(i=voldoende_rij,j=1:ncol(new_st)) %>%
-    #colformat_double(i=1,j=1:nrow(score_tabel), digits=0) %>%
-    #colformat_double(i=3,j=1:nrow(score_tabel), digits=0) %>% 
-    #colformat_double(i=1,j=1:ncol(new_st), digits=0) %>%
-    #colformat_double(i=3,j=1:ncol(new_st), digits=0) %>% 
     colformat_double(i=oneven_rij,j=1:ncol(new_st), digits=0) %>%
-    fontsize(size = 9, part = "body") #%>% 
-    #fit_to_width(max_width = 8)
+    fontsize(size = 9, part = "body")
   
   st_t_ratio <- flextable_dim(st_t)$aspect_ratio
 
