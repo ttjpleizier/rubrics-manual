@@ -1,7 +1,9 @@
-# script om Excel sheet te maken van een portfolio opdracht
-# sheet bestaat uit twee delen
-# A. invul-formulier >
-# B. score-tabel > 
+# R-script om beoordelingsformulier in Excel te maken op basis van rubrieken (ook uit Excel-sheet)
+# het script haalt een Excelsheet op met een voorblad ("instellingen") en bladen met beoordelings-rubrieken
+# en genereert een nieuwe Excelsheet die gebruikt kan worden om scores per student in te vullen.
+
+# Theo Pleizier, januari 2022
+
 
 library(tidyverse)
 library(openxlsx)
@@ -9,7 +11,7 @@ library(here)
 
 # settings ----------------------------------------------------------------
 
-filexl <- "cursus Themaveld Preken/toetsing/R-build-matrices/portfolio_preken.xlsx"
+filexl <- "portfolio.xlsx"
 sheets <- openxlsx::getSheetNames(file = here::here(filexl))[-1] # weglaten tabblad instellingen
 instellingen <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = "instellingen"))
 
@@ -49,7 +51,7 @@ scoretablexlsx <- function(ingevuld, # ingevuld > xlsx sheet met rubric
   return(score_tabel)
 }
 
-formxlsx <- function(ingevuld, # ingevuld = xlsx sheet met rubric
+formxlsx <- function(ingevuld, # ingevuld = xlsx sheet met rubrieken
                      cutoff = 0.55,
                      points = c(0,1,2,3),
                      sufficient = 5.5,
@@ -84,7 +86,7 @@ formxlsx <- function(ingevuld, # ingevuld = xlsx sheet met rubric
 
 
 
-# routine -----------------------------------------------------------------
+# hoofdroutine -----------------------------------------------------------------
 
 naam <- sheets[sheetnr]
 gevuld <- as_tibble(openxlsx::read.xlsx(xlsxFile = here(filexl), sheet = naam))
@@ -97,7 +99,7 @@ formbody <- head(form,-2)
 eersterij <- 2
 laatsterij <- nrow(formbody)+1
 
-# combine form and scores
+# combineer formulier met scores
 if(nrow(form) < nrow(scores)){
   a <- nrow(scores) - nrow(form)
   for (r in 1:a) formfooter <- rbind(formfooter, NA)
@@ -111,9 +113,6 @@ xlsxsheet <- bind_cols(xlsxsheet,scores)
 xlsxsheet
 
 # velden voor naam student en naam docent invoegen
-
-#xlsxsheet[(nrow(xlsxsheet)-3),6] <- "> Naam student"
-#xlsxsheet[(nrow(xlsxsheet)-2),6] <- "> Beoordelend docent"
 
 rijfooterinfo <- nrow(form) + 2
   
