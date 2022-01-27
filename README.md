@@ -18,8 +18,9 @@ Maak een handleiding met portfolio opdrachten, rubrieken en beoordelingsformulie
 
 ## To do 
 
-- [ ] herzien van script 'ilo-matrix.R': van .csv naar .xlsx
-- [X] 220127 ~~maak m.b.v. van `openxlsx` een Excelfile die gebruikt kan worden voor invullen van beoordelingsformulieren~~
+- herzie script 'ilo-matrix.R': van .csv naar .xlsx
+
 
 ## Done
+220127 maak m.b.v. van `openxlsx` een Excelfile die gebruikt kan worden voor invullen van beoordelingsformulieren
 210607 vervang gebruikte functies van packages `readxl` voor die van  `openxlsx`
